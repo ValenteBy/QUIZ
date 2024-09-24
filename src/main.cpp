@@ -93,5 +93,6 @@ int main() {
     shmctl(shm_id, IPC_RMID, nullptr);
     semctl(sem_id, 0, IPC_RMID, 0); // Limpa o semáforo
 
+
     return 0;
 }

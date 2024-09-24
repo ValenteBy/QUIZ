@@ -64,8 +64,8 @@ bool Serve::CheckQuestion(const std::string_view &answer, int &n)
 
 }
 
+
 int Serve::getNumbersQuestions() const
 {
     return perguntas.size();
 }
-

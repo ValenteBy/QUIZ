@@ -1,6 +1,7 @@
 #ifndef CONFIG_SEM_H
 #define CONFIG_SEM_H
 
+
 struct ConfigSem 
 {
     static void semWait(int sem_id);

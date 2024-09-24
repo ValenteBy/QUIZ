@@ -2,7 +2,6 @@
 #include <sys/sem.h>
 #include <unistd.h>
 
-
 void ConfigSem::semWait(int sem_id)
 {
         struct  sembuf sem_op;

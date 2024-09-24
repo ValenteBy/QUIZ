@@ -1,6 +1,6 @@
 #include "include/classes/Serve.h"
-#include "Client.h"
-#include "ConfigSem.h"
+#include "include/classes/Client.h"
+#include "include/ConfigSem.h"
 
 #include <iostream>
 #include <sys/ipc.h>
@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <wait.h>
 #include <cstring>
+#include <limits>
 
 union semun {
     int val;
@@ -19,7 +20,7 @@ union semun {
 int main() {
     key_t shm_key = ftok("memoria", 65);
     key_t sem_key = ftok("semaforo", 75);
-
+    
     std::cout << "Digite aqui o numero de alunos:\n";
     int number_client = 0;
     std::cin >> number_client;
@@ -42,37 +43,48 @@ int main() {
     ConfigSem::semWait(sem_id);
 
     int qts_questions;
+    std::cout << "Digite a quantidade de perguntas:\n";
     std::cin >> qts_questions;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
     shared_serve->createMultiplesQuestions(qts_questions);
 
     ConfigSem::semSignal(sem_id);
 
-    for (int i = 0; i < shared_serve->getNumbersQuestions(); i++) {
-        for (int j = 0; j < number_client; j++) {
+    for (int i = 0; i < shared_serve->getNumbersQuestions(); i++)
+    {
+        (shared_clients + i)->setId(i);
+        for (int j = 0; j < number_client; j++)
+        {
             pid_t pid = fork();
             if (pid == 0) { // Código do processo filho
                 ConfigSem::semWait(sem_id);
-                std::cout << "Jogador " << j + 1 << " respondendo a pergunta!\n";
+                std::cout << "Jogador " << (shared_clients + j)->getId() << " respondendo a pergunta!\n";
                 shared_serve->printQuestion(i);
-                if(shared_serve->CheckQuestion("teste", i)){
+                std::string resposta;
+                getline(std::cin, resposta);
+                if(shared_serve->CheckQuestion(resposta, i))
+                {
                     std::cout << "Acertou a questao!\n";
-                    shared_clients->addPontos();
+                    (shared_clients + j)->addPontos();
                 }
-                else{
+                else
+                {
                     std::cout << "Errou a questao\n";
-                    //errou
                 }
                 ConfigSem::semSignal(sem_id);
                 _exit(0);  // Termina o processo filho
             }
         }
-        for (int j = 0; j < number_client; j++) {
+        for (int j = 0; j < number_client; j++) 
+        {
             wait(nullptr); // Aguarda os filhos terminarem
         }
     }
 
     ConfigSem::semWait(sem_id);
-    for (int i = 0; i < number_client; i++) {
+    for (int i = 0; i < number_client; i++) 
+    {
         (shared_clients + i)->returnDados();
     }
     ConfigSem::semSignal(sem_id);

@@ -1,27 +1,28 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include<iostream>
+#include<vector>
+#include<string>
+#include<string_view>
+
 class Client
 {
     private:
-        int id;
-        bool pontos;
-    /* data */
+        int id = 0;
+        int pontos = 0;
     public:
-        Client(/* args */);
+        Client();
+
         void setId(int id);
 
         int getId() const;
 
-        void addPontos() const;
+        void addPontos();
 
         int getPontos() const;
 
-        void returnDados() const;
+        void returnDados();
 };
-
-Client::Client(/* args */)
-{
-}
 
 #endif

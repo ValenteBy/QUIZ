@@ -1,62 +1,71 @@
-#include<iostream>
-#include<vector>
-#include<string>
-#include<string_view>
+#include "include/classes/Serve.h"
+#include <iostream>
+#include <string>
+#include <limits>
 
+Serve::Serve(){}
 
-class Serve
+void Serve::createQuestion()
 {
-    private:
-        std::vector<std::pair<std::string, std::string>> perguntas;
-        std::vector<std::vector<std::string>> respostas;
-    
-    public:
-        Serve(/*ARGS*/);
-        void createQuestion(){
-            std::string question;
-            std::string correct_answer;
+    std::string question;
+    std::string correct_answer;
 
-            std::cout << "Digite a pergunta:\n";
-            std::getline(std::cin, question);
+    std::cout << "Digite a pergunta:\n";
+    std::getline(std::cin, question);
 
-            for(int i = 0; i < 4; i++){
-                std::string resposta;
-                std::cout << "Escreva o item " << i << ":\n";
-                std::cin >> resposta;
-                respostas.back().push_back(resposta);
-            }
-            
-            std::cout << "Digite a resposta correta:\n";
-            std::getline(std::cin, correct_answer);      
-            perguntas.push_back({question, correct_answer});
-        }
+    std::vector<std::string> current_respostas; // Inicialize um novo vetor para as respostas
 
-        void createMultiplesQuestions(int &n){
-            for(int i = 0; i < n; i++){
-                createQuestion();
-            }
-        }
+    for (int i = 0; i < 4; i++)
+    {
+        std::string resposta;
+        std::cout << "Escreva o item " << i + 1 << ":\n"; // Corrigido para mostrar o índice correto
+        std::getline(std::cin, resposta);
+        current_respostas.push_back(resposta); // Adiciona resposta ao vetor atual
+    }
 
-        void printQuestion(int &n) const{
-            std::cout << "Pergunta: " <<  perguntas[n].first << std::endl;
+    // Limpa o buffer de entrada
 
-            std::cout << "Escolha o item correto!\n";
-            for(int i = 0; i < 4; i++){
-                std::cout << i + 1 << " - " << respostas[n][i] << std::endl;
-            }
-        }
+    std::cout << "Digite a resposta correta:\n";
+    std::getline(std::cin, correct_answer);
 
-        bool CheckQuestion(const std::string_view &answer, int &n) const{
-            if(answer == perguntas[n].second)
-                return true;
-            return false;
-        }
-
-        int getNumbersQuestions() const{
-            return perguntas.size();
-        }
-};
-
-Serve::Serve(/* args */)
-{
+    //std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    perguntas.push_back({question, correct_answer});
+    respostas.push_back(current_respostas); // Armazena as respostas
 }
+
+void Serve::createMultiplesQuestions(int &n) 
+{
+    for (int i = 0; i < n; i++) 
+    {
+        createQuestion();
+    }
+}
+
+void Serve::printQuestion(int &n) const
+{
+    std::cout << "Pergunta: " << perguntas[n].first << std::endl;
+    std::cout << "Escolha o item correto!\n";
+
+    for (int i = 0; i < 4; i++) 
+    {
+        std::cout << i + 1 << " - " << respostas[n][i] << std::endl;
+    }
+}
+
+bool Serve::CheckQuestion(const std::string_view &answer, int &n)
+{
+    if(answer == perguntas[n].second || check[n] == 0)
+    {
+        //check[n] = 1;
+        return true;
+    }
+    else
+        return false;
+
+}
+
+int Serve::getNumbersQuestions() const
+{
+    return perguntas.size();
+}
+

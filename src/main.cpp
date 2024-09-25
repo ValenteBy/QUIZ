@@ -10,6 +10,7 @@
 #include <wait.h>
 #include <cstring>
 #include <limits>
+
 union semun 
 {
     int val;
@@ -24,6 +25,7 @@ int main()
     sleep(2);
     std::cout << "#####################################  GAMER QUIZ #####################################\n";
     sleep(1);
+
     key_t shm_key = ftok("memoria", 65);
     key_t sem_key = ftok("semaforo", 75);
     
@@ -52,29 +54,13 @@ int main()
     sleep(1);
     std::cout << "##################################### QUESTION MACHINE ##############################\n";
     sleep(1);
-
-    std::cout << "DESEJA CRIAR SUAS PERGUNTAS? OU PEGAR NO NOSSO ESTOQUE?!\n";
-    std::cout << "Responda (1) criar ou (2) estoque?: ";
-    int escolha;
-    std::cin >> escolha;
-    if(escolha == 1){
-        sleep(1);
-        std::cout << "1..\n";
-        sleep(1);
-        std::cout << "2..\n";
-        sleep(1);
-        std::cout << "3..\n";
-
-        shared_serve->createAutomaticQuestions();
-        std::cout << "Criado!!";
-    }else{
-        int qts_questions;
-        std::cout << "Digite a quantidade de perguntas: ";
-        std::cin >> qts_questions;
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        shared_serve->createMultiplesQuestions(qts_questions); 
-    }
-
+    
+    int qts_questions;
+    std::cout << "Digite a quantidade de perguntas: ";
+    std::cin >> qts_questions;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    shared_serve->createMultiplesQuestions(qts_questions);
+    
     std::cout << "\n";
 
     ConfigSem::semSignal(sem_id, 0); // Libera o semáforo de perguntas

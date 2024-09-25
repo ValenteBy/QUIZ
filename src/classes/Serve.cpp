@@ -35,7 +35,7 @@ void Serve::createMultiplesQuestions(int &n)
     for (int i = 0; i < n; i++) 
     {   
         sleep(1);
-        std::cout << "CRIANDO " << i + 1 << "a pergunta!!!\n";
+        std::cout << "Criando " << i + 1 << "a pergunta!!!\n";
         createQuestion();
     }
 }

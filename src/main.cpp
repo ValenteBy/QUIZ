@@ -11,94 +11,112 @@
 #include <cstring>
 #include <limits>
 
+// Definição de uma união para o controle dos valores dos semáforos
 union semun 
 {
-    int val;
-    struct semid_ds *buf;
-    unsigned short *array;
+    int val;                   // Valor do semáforo
+    struct semid_ds *buf;      // Buffer de status do semáforo
+    unsigned short *array;     // Array de valores para semáforos
 };
 
 int main() 
 {   
+    // Funções de espera para simular um carregamento do jogo
     sleep(1);
     std::cout << "CARREGANDO SUA MAQUINA!!!! PACIENCIA!!\n";
     sleep(2);
     std::cout << "#####################################  GAMER QUIZ #####################################\n";
     sleep(1);
 
+    // Criação de chaves únicas para memória compartilhada e semáforos
     key_t shm_key = ftok("memoria", 65);
     key_t sem_key = ftok("semaforo", 75);
     
+    // Solicita o número de clientes (jogadores)
     std::cout << "Digite aqui o numero de alunos: ";
     int number_client = 0;
     std::cin >> number_client;
 
+    // Criação da memória compartilhada para armazenar a classe `Serve` e os `Client` (jogadores)
     int shm_id = shmget(shm_key, sizeof(Serve) + sizeof(Client) * number_client, 0666|IPC_CREAT);
-    int sem_id = semget(sem_key, 2, 0666|IPC_CREAT); // Dois semáforos: um para perguntas e outro para pontuação
+    // Criação de dois semáforos: um para controle de perguntas e outro para pontuações
+    int sem_id = semget(sem_key, 2, 0666|IPC_CREAT);
 
+    // Inicialização dos semáforos
     semun su;
-    su.val = 1;  // Inicializa o semáforo para perguntas
+    su.val = 1;  // Inicializa o semáforo de perguntas
     semctl(sem_id, 0, SETVAL, su);
-    su.val = 1;  // Inicializa o semáforo para pontuação
+    su.val = 1;  // Inicializa o semáforo de pontuação
     semctl(sem_id, 1, SETVAL, su);
 
+    // Mapeia a memória compartilhada para as classes `Serve` e `Client`
     Serve *shared_serve = (Serve *) shmat(shm_id, nullptr, 0);
     Client *shared_clients = (Client *)(shared_serve + 1);
 
-    new (shared_serve) Serve(); // Placement new para inicializar Serve na memória compartilhada
+    // Inicialização explícita da classe `Serve` e `Client` utilizando placement new
+    new (shared_serve) Serve();
     for (int i = 0; i < number_client; i++) {
-        new (shared_clients + i) Client(); // Placement new para Clientes
+        new (shared_clients + i) Client();
     }
 
-    ConfigSem::semWait(sem_id, 0); // Aguarda o semáforo de perguntas
+    // Espera o semáforo de perguntas
+    ConfigSem::semWait(sem_id, 0);
     sleep(1);
     std::cout << "##################################### QUESTION MACHINE ##############################\n";
     sleep(1);
     
+    // Solicita a quantidade de perguntas ao usuário
     int qts_questions;
     std::cout << "Digite a quantidade de perguntas: ";
     std::cin >> qts_questions;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    // Cria as perguntas e respostas
     shared_serve->createMultiplesQuestions(qts_questions);
     
     std::cout << "\n";
 
-    ConfigSem::semSignal(sem_id, 0); // Libera o semáforo de perguntas
+    // Libera o semáforo de perguntas
+    ConfigSem::semSignal(sem_id, 0);
 
+    // Atribui IDs únicos para cada cliente
     for (int i = 0; i < number_client; i++) 
     {
-        (shared_clients + i)->setId(i + 1); // Atribui o ID ao cliente
+        (shared_clients + i)->setId(i + 1);
     }
     
+    // Simula um atraso antes do início do jogo
     sleep(2);
     std::cout << "#################################### START! #####################################\n";
 
+    // Laço principal que processa todas as perguntas
     for (int i = 0; i < shared_serve->getNumbersQuestions(); i++)
     {
         for (int j = 0; j < number_client; j++)
         {
             sleep(1);
-            pid_t pid = fork();
+            pid_t pid = fork();  // Criação de um processo filho para cada cliente
             if (pid == 0) 
-            { // Código do processo filho
-                ConfigSem::semWait(sem_id, 0); // Aguarda o semáforo de perguntas
+            { 
+                // Código do processo filho
+                ConfigSem::semWait(sem_id, 0);  // Espera o semáforo de perguntas
 
                 std::cout << "Jogador " << (shared_clients + j)->getId() << 
                                  " (Processo ID: " << getpid() << ") respondendo a pergunta!\n";
 
-                shared_serve->printQuestion(i);
+                shared_serve->printQuestion(i);  // Imprime a pergunta
                 std::cout << "Coloque sua resposta aqui: ";
                 std::string resposta;
                 getline(std::cin, resposta);
-                // Se for a primeira resposta correta, atribui pontos
+                
+                // Verifica se a resposta está correta e se é a primeira resposta correta
                 if (shared_serve->CheckQuestion(resposta, i))
                 {
-                    ConfigSem::semWait(sem_id, 1); // Aguarda o semáforo de pontuação
+                    ConfigSem::semWait(sem_id, 1);  // Espera o semáforo de pontuação
 
-                    (shared_clients + j)->addPontos(); // Atribui pontos
+                    (shared_clients + j)->addPontos();  // Adiciona pontos ao jogador
                     std::cout << "Jogador " << (shared_clients + j)->getId() << 
                                     " (Processo ID: " << getpid()  << ") acertou a questão!\n\n";
-                    ConfigSem::semSignal(sem_id, 1); // Libera o semáforo de pontuação
+                    ConfigSem::semSignal(sem_id, 1);  // Libera o semáforo de pontuação
                 } 
                 else 
                 {
@@ -106,35 +124,37 @@ int main()
                                     " (Processo ID: " << getpid()  
                                     << ") errou a questão/Demorou para responder!\n\n";
                 }
-                ConfigSem::semSignal(sem_id, 0); // Libera o semáforo de perguntas
-                _exit(0);  // Termina o processo filho
-                //std::cout << "\n";
+                ConfigSem::semSignal(sem_id, 0);  // Libera o semáforo de perguntas
+                _exit(0);  // Finaliza o processo filho
             }
         }
 
+        // Espera a finalização de todos os processos filhos
         for (int j = 0; j < number_client; j++) 
         {
-            wait(nullptr); // Aguarda os filhos terminarem
+            wait(nullptr);  
         }
-
     }
 
     ConfigSem::semWait(sem_id, 0);   
     
-    //std::cout << "\n";
+    // Simula um atraso antes de mostrar os pontos
     sleep(3);
     std::cout << "CALMA GAFANHOTO!!! ESTAMOS GERANDO SEUS PONTOS!!\n";
     sleep(2);
     std::cout << "#################################### SCORE! #####################################\n";
+    
+    // Mostra a pontuação final de cada cliente
     for (int i = 0; i < number_client; i++) 
     {
         (shared_clients + i)->returnDados();
     }
     ConfigSem::semSignal(sem_id, 0);
 
+    // Desvincula e remove a memória compartilhada e os semáforos
     shmdt(shared_serve);
     shmctl(shm_id, IPC_RMID, nullptr);
-    semctl(sem_id, 0, IPC_RMID, 0); // Limpa os semáforos
+    semctl(sem_id, 0, IPC_RMID, 0);
 
     return 0;
 }

@@ -1,11 +1,12 @@
-#ifndef CONFIG_SEM_H
-#define CONFIG_SEM_H
+#ifndef CONFIGSEM_H
+#define CONFIGSEM_H
 
+#include <sys/sem.h>
 
-struct ConfigSem 
-{
-    static void semWait(int sem_id);
-    static void semSignal(int sem_id);
+class ConfigSem {
+public:
+    static void semWait(int sem_id, int num);
+    static void semSignal(int sem_id, int num);
 };
 
-#endif // CONFIG_SEM_H
+#endif

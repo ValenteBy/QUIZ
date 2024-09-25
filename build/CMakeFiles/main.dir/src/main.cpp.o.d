@@ -154,19 +154,19 @@ CMakeFiles/main.dir/src/main.cpp.o: \
  /usr/include/c++/11/bits/vector.tcc \
  /home/samuel_valente/samuel/projetos/uece/SO/quiz/include/classes/Client.h \
  /home/samuel_valente/samuel/projetos/uece/SO/quiz/include/ConfigSem.h \
+ /usr/include/x86_64-linux-gnu/sys/sem.h \
  /usr/include/x86_64-linux-gnu/sys/ipc.h \
  /usr/include/x86_64-linux-gnu/bits/ipctypes.h \
  /usr/include/x86_64-linux-gnu/bits/ipc.h \
  /usr/include/x86_64-linux-gnu/bits/ipc-perm.h \
+ /usr/include/x86_64-linux-gnu/bits/sem.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_semid_ds.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_semid64_ds.h \
  /usr/include/x86_64-linux-gnu/sys/shm.h \
  /usr/include/x86_64-linux-gnu/bits/shm.h \
  /usr/include/x86_64-linux-gnu/bits/shmlba.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_shmid_ds.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_shmid64_ds.h \
- /usr/include/x86_64-linux-gnu/sys/sem.h \
- /usr/include/x86_64-linux-gnu/bits/sem.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct_semid_ds.h \
- /usr/include/x86_64-linux-gnu/bits/types/struct_semid64_ds.h \
  /usr/include/unistd.h /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
  /usr/include/x86_64-linux-gnu/bits/environments.h \
  /usr/include/x86_64-linux-gnu/bits/confname.h \

@@ -20,6 +20,7 @@ public:
     void createQuestion();
     void createMultiplesQuestions(int &n);
     void printQuestion(int &n) const;
+    bool noTime(int &n);
     bool CheckQuestion(const std::string_view &answer, int &n);
     int getNumbersQuestions() const;
     void createAutomaticQuestions();
